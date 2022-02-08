@@ -31,10 +31,12 @@ class InternalModuleWindow : public FormGroup::Line
  protected:
   uint8_t lastModule = 0;
   lv_obj_t* br_box = nullptr;
+  lv_obj_t* ant_box = nullptr;
 
   static int getBaudrate();
   static void setBaudrate(int val);
 
   void setModuleType(int moduleType);
   void updateBaudrateLine();
+  void updateAntennaLine();
 };
