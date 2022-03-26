@@ -289,27 +289,24 @@ void ModuleWindow::updateModule()
   }
 
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-  if (isModuleXJT(moduleIdx) &&
+  if (moduleIdx == INTERNAL_MODULE && isModuleXJT(moduleIdx) &&
       g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) {
     new StaticText(line, rect_t{}, STR_ANTENNA, 0, COLOR_THEME_PRIMARY1);
     new Choice(
         this, rect_t{}, STR_ANTENNA_MODES, ANTENNA_MODE_INTERNAL,
         ANTENNA_MODE_EXTERNAL,
-        GET_DEFAULT(g_model.moduleData[moduleIdx].pxx.antennaMode),
+        GET_DEFAULT(g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode),
         [=](int32_t antenna) -> void {
           if (!isExternalAntennaEnabled() &&
-              (antenna == ANTENNA_MODE_EXTERNAL ||
-               (antenna == ANTENNA_MODE_PER_MODEL &&
-                g_model.moduleData[moduleIdx].pxx.antennaMode ==
-                    ANTENNA_MODE_EXTERNAL))) {
+              (antenna == ANTENNA_MODE_EXTERNAL)) {
             if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
-              g_model.moduleData[moduleIdx].pxx.antennaMode = antenna;
+              g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode = antenna;
               SET_DIRTY();
             }
           } else {
-            g_model.moduleData[moduleIdx].pxx.antennaMode = antenna;
-            checkExternalAntenna();
+            g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode = antenna;
             SET_DIRTY();
+            checkExternalAntenna();
           }
         });
   }
