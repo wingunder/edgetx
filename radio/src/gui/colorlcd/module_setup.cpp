@@ -291,9 +291,10 @@ void ModuleWindow::updateModule()
 #if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
   if (moduleIdx == INTERNAL_MODULE && isModuleXJT(moduleIdx) &&
       g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) {
+    auto line = newLine(&grid);
     new StaticText(line, rect_t{}, STR_ANTENNA, 0, COLOR_THEME_PRIMARY1);
-    new Choice(
-        this, rect_t{}, STR_ANTENNA_MODES, ANTENNA_MODE_INTERNAL,
+    auto antennaChoice = new Choice(
+        line, rect_t{}, STR_ANTENNA_MODES, ANTENNA_MODE_INTERNAL,
         ANTENNA_MODE_EXTERNAL,
         GET_DEFAULT(g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode),
         [=](int32_t antenna) -> void {
@@ -309,6 +310,9 @@ void ModuleWindow::updateModule()
             checkExternalAntenna();
           }
         });
+
+    antennaChoice->setAvailableHandler(
+        [=](int8_t mode) { return mode != ANTENNA_MODE_PER_MODEL; });
   }
 #endif
 
