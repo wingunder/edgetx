@@ -77,8 +77,10 @@ COMMON_OPTIONS+=${EXTRA_OPTIONS}
 # wipe build directory clean
 rm -rf build && mkdir -p build && cd build
 
+# workaround for GH repo owner
+git config --global --add safe.directory $(pwd)
+
 GIT_SHA_SHORT=$(git rev-parse --short HEAD)
-#GIT_TAG=`git describe --tags`
 
 target_names=$(echo "$FLAVOR" | tr '[:upper:]' '[:lower:]' | tr ';' '\n')
 
