@@ -75,7 +75,7 @@ COMMON_OPTIONS+=${EXTRA_OPTIONS}
 : "${FIRMARE_TARGET:="firmware-size"}"
 
 # workaround for GH repo owner
-git config --global --add safe.directory $(pwd)
+git config --global --add safe.directory "$(pwd)"
 
 # wipe build directory clean
 rm -rf build && mkdir -p build && cd build
