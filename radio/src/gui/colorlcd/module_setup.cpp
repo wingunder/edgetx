@@ -513,7 +513,7 @@ void ModuleSubTypeChoice::update()
     setGetValueHandler(GET_DEFAULT(md->subType));
     setSetValueHandler(SET_DEFAULT(md->subType));
 
-#if defined(PCBNV14)
+#if defined(PCBNV14) && !defined(SIMU)
     if (moduleIdx == INTERNAL_MODULE) {
       if (hardwareOptions.pcbrev == PCBREV_NV14) {
         md->subType = FLYSKY_SUBTYPE_AFHDS2A;
@@ -523,9 +523,11 @@ void ModuleSubTypeChoice::update()
         setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS3; });
       }
     }
-#else
+#elif !defined(SIMU)
     md->subType = FLYSKY_SUBTYPE_AFHDS3;
     setAvailableHandler([](int v) { return v == FLYSKY_SUBTYPE_AFHDS3; });
+#else
+    setAvailableHandler(nullptr);
 #endif
   }
 #endif
