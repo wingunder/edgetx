@@ -113,6 +113,7 @@ translations = [
 ]
 
 common_options = {
+    "BLUETOOTH": "YES",
     "MULTIMODULE": "NO",
     "CROSSFIRE": "NO",
     "AFHDS3": "NO",
