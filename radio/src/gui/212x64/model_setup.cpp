@@ -326,8 +326,8 @@ inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 #define IF_MODULE_BAUDRATE_ADJUST(module, xxx) (isModuleCrossfire(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
 #endif
 #else
-#define IF_MODULE_SYNCED(module, xxx)
-#define IF_MODULE_BAUDRATE_ADJUST(module, xxx)
+#define IF_MODULE_SYNCED(module, xxx)          HIDDEN_ROW
+#define IF_MODULE_BAUDRATE_ADJUST(module, xxx) HIDDEN_ROW
 #endif
 
 #if defined(PXX2)
@@ -707,7 +707,6 @@ void menuModelSetup(event_t event)
 #endif
         lcdDrawTextAlignedLeft(y, STR_SWITCHWARNING);
         swarnstate_t states = g_model.switchWarningState;
-        char c;
         if (attr) {
           s_editMode = 0;
           if (!READ_ONLY()) {
@@ -890,8 +889,10 @@ void menuModelSetup(event_t event)
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_XJT_ACCST_RF_PROTOCOLS, 1 + g_model.moduleData[INTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
         else if (isModuleISRM(INTERNAL_MODULE))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_ISRM_RF_PROTOCOLS, 1 + g_model.moduleData[INTERNAL_MODULE].subType, menuHorizontalPosition==1 ? attr : 0);
+#if defined(CROSSFIRE)
         else if (isModuleCrossfire(INTERNAL_MODULE))
           lcdDrawTextAtIndex(lcdNextPos + 3, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate),0);
+#endif
         if (attr) {
           if (menuHorizontalPosition == 0) {
             uint8_t moduleType = checkIncDec(event, g_model.moduleData[INTERNAL_MODULE].type, MODULE_TYPE_NONE, MODULE_TYPE_MAX, EE_MODEL, isInternalModuleAvailable);
@@ -1041,9 +1042,10 @@ void menuModelSetup(event_t event)
 
 #if defined(CROSSFIRE) || defined(GHOST)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_BAUDRATE: {
-        ModuleData &moduleData = g_model.moduleData[EXTERNAL_MODULE];
         lcdDrawText(INDENT_WIDTH, y, STR_BAUDRATE);
+#if defined(CROSSFIRE)
         if (isModuleCrossfire(EXTERNAL_MODULE)) {
+          ModuleData &moduleData = g_model.moduleData[EXTERNAL_MODULE];
           lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_CRSF_BAUDRATE, CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate),attr | LEFT);
           if (attr) {
             moduleData.crsf.telemetryBaudrate =CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event,CROSSFIRE_STORE_TO_INDEX(moduleData.crsf.telemetryBaudrate),0, DIM(CROSSFIRE_BAUDRATES) - 1));
@@ -1052,19 +1054,22 @@ void menuModelSetup(event_t event)
             }
           }
         }
-        break;
-#if SPORT_MAX_BAUDRATE < 400000
         else {
-          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, CROSSFIRE_BAUDRATES[CROSSFIRE_STORE_TO_INDEX(g_model.moduleData[EXTERNAL_MODULE].ghost.telemetryBaudrate)],attr | LEFT);
+#endif
+#if SPORT_MAX_BAUDRATE < 400000 && defined(GHOST)
+          ModuleData &moduleData = g_model.moduleData[EXTERNAL_MODULE];
+          lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, CROSSFIRE_BAUDRATES[CROSSFIRE_STORE_TO_INDEX(moduleData.ghost.telemetryBaudrate)],attr | LEFT);
           if (attr) {
             moduleData.ghost.telemetryBaudrate = CROSSFIRE_INDEX_TO_STORE(checkIncDecModel(event,CROSSFIRE_STORE_TO_INDEX(moduleData.ghost.telemetryBaudrate),0, 1));
             if (checkIncDec_Ret) {
               restartModule(EXTERNAL_MODULE);
             }
           }
-        }
-        break;
 #endif
+#if defined(CROSSFIRE)
+        }
+#endif
+        break;
       }
 
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_SERIALSTATUS:
@@ -1339,8 +1344,10 @@ void menuModelSetup(event_t event)
               if (s_editMode > 0) {
                 CHECK_INCDEC_MODELVAR_ZERO(event, g_model.header.modelId[moduleIdx], getMaxRxNum(moduleIdx));
                 if (checkIncDec_Ret) {
+#if defined(CROSSFIRE)
                   if (isModuleCrossfire(moduleIdx))
                     moduleState[moduleIdx].counter = CRSF_FRAME_MODELID;
+#endif
                   modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx];
                 }
                 else if (event == EVT_KEY_LONG(KEY_ENTER)) {
